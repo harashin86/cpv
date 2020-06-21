@@ -14,24 +14,48 @@ void processing(int num);
 void ybr_to_rgb(int num);
 void put_data(int num);
 void cp(int num);
-
-
+void red_frame(int num);
 int main(void){
-  for(int i=0;i<2;i++){//複数の画像の読み込み
+  for(int i=0;i<NUM;i++){//複数の画像の読み込み
     get_data(i);
     rgb_to_ybr(i);
-    processing(i);
+  }
+  for (int i = 0; i < NUM; i++) {
+    if (i==0) {
+      /*1度だけ実行*/
+      processing(i);
+    }
     ybr_to_rgb(i);
   }
-  for(int i=0;i<2;i++){//複数の画像の書き出し
+  for(int i=0;i<NUM;i++){//複数の画像の書き出し
     put_data(i);
   }
- return 0;
+  return 0;
 }
 void processing(int num){
   cp(num);
+  red_frame(num);
 }
+void red_frame(int num) {
+  int h=0,v=0;
+  printf("パラメータ入力\n" );
+  printf("対象ブロックの左上端画素の位置を入力して下さい\n");
+  printf("---水平：\n");
+  scanf("%d\n",&h );
+  printf("---垂直：\n");
+  scanf("%d\n",&v );
+  for (int i = 0; i < 16; i++) {
+    for (int j = 0; j < 16; j++) {
+      if(i==0||i==15||j==0||j==15) {
+        /*ライン引き*/
+        imgout[num][0][v+j][h+i]=82;
+        imgout[num][1][v+j][h+i]=90;
+        imgout[num][2][v+j][h+i]=240;
 
+      }
+    }
+  }
+}
 void get_data(int num){
   FILE *fp;
   char file[114];
@@ -53,7 +77,7 @@ void get_data(int num){
   bite[num]=filesize-offset-width*height*(bits/8);*/
   width[num]= header[num][18]+header[num][19]*pow(16,2)+header[num][20]*pow(16,4)+header[num][21]*pow(16,6);
   height[num]= header[num][22]+header[num][23]*pow(16,2)+header[num][24]*pow(16,4)+header[num][25]*pow(16,6);
-  
+
 for(i=height[num]-1;i>-1;i--){
     for(j=0;width[num]>j;j++){
       imgin[num][2][j][i]=fgetc(fp);
@@ -61,7 +85,7 @@ for(i=height[num]-1;i>-1;i--){
       imgin[num][0][j][i]=fgetc(fp);
     }
   }
-  /*printf("＜ファイルサイズ＞\n\n%d バイト\n",filesize[num]); 
+  /*printf("＜ファイルサイズ＞\n\n%d バイト\n",filesize[num]);
   printf("＜オフセット＞\n%d バイト\n",offset[num]);
   printf("＜画像の幅＞\n%d 画素\n",width[num]);
   printf("＜画像の高さ＞\n%d ライン\n",height[num]);
@@ -88,12 +112,12 @@ void rgb_to_ybr(int num){
 	}else{
 	  offset=-0.5;
 	}
-	arry[k]=(int)(arry[k]+offset);      
+	arry[k]=(int)(arry[k]+offset);
 	//１２８加算
 	if(k==1||k==2){
 	  arry[k]+=128;
-	}  
-	//範囲処理    
+	}
+	//範囲処理
 	if(arry[k]>255){
 	  arry[k]=255;
 	}else if(arry[k]<0){
@@ -101,7 +125,7 @@ void rgb_to_ybr(int num){
 	}
 	imgin[num][k][j][i]=arry[k];
       }
-    } 
+    }
   }
 }
 void cp(int num){
@@ -113,7 +137,6 @@ void cp(int num){
     }
   }
 }
-
 void ybr_to_rgb(int num){
   int i=0,j=0,k=0;
   double arry[3]={0,0,0};
@@ -123,7 +146,7 @@ void ybr_to_rgb(int num){
       arry[0]= (1.0000*imgout[num][0][j][i]) + 1.4020*(imgout[num][2][j][i]-128);
       arry[1]= (1.0000*imgout[num][0][j][i]) + (-0.3441*(imgout[num][1][j][i]-128)) + (-0.7141*(imgout[num][2][j][i]-128));
       arry[2]= (1.0000*imgout[num][0][j][i])+(1.7720*(imgout[num][1][j][i]-128));
-      for(k=0;k<3;k++){      
+      for(k=0;k<3;k++){
 	if (arry[k]>=0.0){//四捨五入
 	  offset=0.5;
 	}else{
@@ -152,10 +175,10 @@ void put_data(int num){
       printf("ファイルをオープンできません\n");
     }
   printf("ファイルをオープンしました\n");
-  for(i=0;i<54;i++){  
+  for(i=0;i<54;i++){
     fputc(header[num][i],fp);
   }
-  for(i=height[num]-1;i>-1;i--){ 
+  for(i=height[num]-1;i>-1;i--){
     for(j=0;j<width[num];j++){
       fputc(imgout[num][2][j][i],fp);
       fputc(imgout[num][1][j][i],fp);
@@ -170,13 +193,13 @@ void put_data(int num){
 
   for(int i=-12;i<13;i++){//ガウシアンフィルタ生成
     for(int j=12;j>-13;j--){
-      double x=(pow(j,2)+pow(i,2))/(-2*pow(2.5,2));  
+      double x=(pow(j,2)+pow(i,2))/(-2*pow(2.5,2));
       filter_gausian[12-j][12+i]=(1/(2*3.14*2.5*2.5))*exp(x);
     }
   }
   for(int i=0;i<height;i++){//フィルタ処理
     for(int j=0;j<width;j++){
-      double sum=0;      
+      double sum=0;
       if(12<i<height[nun]-12||12<j<width[num]-12){//範囲内処理
 	for(int k=0;k<25;k++){
 	  for(int l=0;l<25;l++){
@@ -185,7 +208,7 @@ void put_data(int num){
 	}
       }else{//範囲外
 	for(int k=0;k<25;k++){
-	  for(int l=0;l<25;l++){ 
+	  for(int l=0;l<25;l++){
 	    int a=0,b=0;
 	    if(k<12-i){//a判定
 	      a=12-i+k+1;
