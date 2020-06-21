@@ -19,6 +19,7 @@ int main(void){
   
   get_data();
   rgb_to_ybr();
+  cp();
   processing();
   ybr_to_rgb();
   put_data();
@@ -26,41 +27,6 @@ int main(void){
 
 }
 void processing(){
-  FILE *fp;
-  int array[32][32]={{}};     
-  int m,n=0;
-  for(int i=0; i<height; i+=16 ){
-    m=0;
-    for(int j=0; j<width; j+=16 ){
-      double sum=0;      
-      for(int k=0;k<16;k++){//16*16ブロックの平均
-	for(int l=0;l<16;l++){
-	  sum+=imgin[0][j+l][i+k];
-	}
-      }
-      array[m][n]=(int)(sum/(16*16))+0.5;//四捨五入
-      m++;
-    }
-    n++;
-  }
-  printf("データの書き出しを行います");
-  fp=fopen("ex2-1.txt","wb");
-  if (fp==NULL){
-    printf("ファイルをオープンできません.\n");
-    exit (1);
-  }   
-  printf("ファイルをオープンしました.\n");
-  /* --- ファイルに書き出し ---*/
-   for(int i=0;i<height/16;i++){
-     for(int j=0;j<width/16;j++){
-       fprintf(fp,"%d ",array[j][i]);
-     }
-     fprintf(fp,"\n");
-   }
-   printf("ファイルにデータを書き出しました.\n");
-   /*--- ファイル・クローズ(書き出し用) ---*/
-   fclose(fp);
-  printf("ファイルをクローズしました.\n");
   
 }
 
