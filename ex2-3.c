@@ -19,6 +19,7 @@ int main(void){
   for(int i=0;i<NUM;i++){//複数の画像の読み込み
     get_data(i);
     rgb_to_ybr(i);
+    cp(i);
   }
   for (int i = 0; i < NUM; i++) {
     if (i==0) {
@@ -33,24 +34,24 @@ int main(void){
   return 0;
 }
 void processing(int num){
-  cp(num);
+
   red_frame(num);
 }
 void red_frame(int num) {
   int h=0,v=0;
   printf("パラメータ入力\n" );
   printf("対象ブロックの左上端画素の位置を入力して下さい\n");
-  printf("---水平：\n");
-  scanf("%d\n",&h );
-  printf("---垂直：\n");
-  scanf("%d\n",&v );
+  printf("---水平：");
+  scanf("%d",&h );
+  printf("---垂直：");
+  scanf("%d",&v );
   for (int i = 0; i < 16; i++) {
     for (int j = 0; j < 16; j++) {
       if(i==0||i==15||j==0||j==15) {
         /*ライン引き*/
-        imgout[num][0][v+j][h+i]=82;
-        imgout[num][1][v+j][h+i]=90;
-        imgout[num][2][v+j][h+i]=240;
+        imgout[num][0][h+j][v+i]=82;
+        imgout[num][1][h+j][v+i]=90;
+        imgout[num][2][h+j][v+i]=240;
 
       }
     }
