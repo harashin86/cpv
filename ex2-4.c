@@ -15,21 +15,13 @@ void processing(int num);
 void ybr_to_rgb(int num);
 void put_data(int num);
 void cp(int num);
-void red_frame(int num);
-void matching(void) {
-  /* code */
-}
+void red_frame(int num,int hori,int verti );
 int main(void){
   for(int i=0;i<NUM_IMG;i++){//複数の画像の読み込み
     get_data(i);
     rgb_to_ybr(i);
     cp(i);
-  }
-  for (int i = 0; i < NUM_IMG; i++) {
-    if (i==0) {
-      /*1度だけ実行*/
-      processing(i);//
-    }
+    processing(i);//
     ybr_to_rgb(i);
   }
   for(int i=0;i<NUM_IMG;i++){//複数の画像の書き出し
@@ -39,66 +31,54 @@ int main(void){
 }
 void processing(int num){
   int h=0,v=0;
-  printf("パラメータ入力\n" );
-  printf("対象ブロックの左上端画素の位置を入力して下さい\n");
-  printf("---水平：");
-  scanf("%d",&h );
-  printf("---垂直：");
-  scanf("%d",&v );
-  int target[h][v]
-  /*類似画素保存*/
-  for (int i = 0; i < BLOCK_SIZE; i++) {
-    for (int j = 0; j < BLOCK_SIZE; j++) {
-      target[j][i]=imgout[num][0][h+j][v+i];
+  int array[2]={0,0};//左上端画素
+  int target[BLOCK_SIZE][BLOCK_SIZE];
+  if(num==0){
+      /*一回目の処理（対象ブロック指定）*/
+    printf("パラメータ入力\n" );
+    printf("対象ブロックの左上端画素の位置を入力して下さい\n");
+    printf("---水平：");
+    scanf("%d",&h );
+    printf("---垂直：");
+    scanf("%d",&v );
+    for (int i = 0; i < BLOCK_SIZE; i++) {
+      for (int j = 0; j < BLOCK_SIZE; j++) {
+        target[j][i]=imgout[num][0][h+j][v+i];
+      }
     }
-  }
-  mating(void);
-  int min=0;
-  int sum=0;
-  int min_p{0,0}
-  for (int i = 0; i < height-BLOCK_SIZE-1; i++) {
-    for (int j = 0; j < width-BLOCK_SIZE-1; j++) {
-      /* 差分絶対値和*/
-      for (int k = 0; k < BLOCK_SIZE; k++) {
-        for (int l = 0; l < BLOCK_SIZE; l++) {
-        sum+=abs(target[l][k]-imgin[num][0][j+l][i+k])
-        //sum+=abs(imgin[num][0][h][v]-imgin[num][0][j+l][i+k])
+    array[0]=h;
+    array[1]=v;
+  }else{
+    /* 2回目以降の処理（類似画像検索）*/
+    int min=0;
+    for (int i = 0; i < height-15; i++) {
+      for (int j = 0; j < width-15; j++) {
+        /* 差分絶対値和の計算*/
+        int sum=0;
+        for (int k = 0; k < BLOCK_SIZE; k++) {
+          for (int l = 0; l < BLOCK_SIZE; l++) {
+            sum+=abs(target[l][k]-imgin[num][0][j+l][i+k]);
+            //sum+=abs(imgin[num][0][h][v]-imgin[num][0][j+l][i+k])
+          }
+        }
+        /* 類似ブロックの更新 */
+        if (i==0&&j==0) {
+          /* 最初のsumの値をminに格納する */
+          min=sum;
+        }
+        if (sum<min) {
+          min=sum;
+          array[0]=j;
+          array[1]=i;
         }
       }
-      if (sum<min) {
-        /* 類似度更新 */
-        min=sum;
-        /*参照ブロックの基準点*/
-        min_p[0]=j
-        min_p[1]=i
-      }
     }
+    printf("＜マッチング結果＞\n");
+    printf("マッチング位置:( %d , %d)\n",array[0],array[1] );
+    printf("マッチング誤差:%d\n",min );
   }
-  red_frame(num,h,v)
-}
-int matching(void) {
-  /* 類似画像検索*/
-  int min=0;
-  int sum=0;
-  int min_p{0,0}
-  for (int i = 0; i < height-BLOCK_SIZE-1; i++) {
-    for (int j = 0; j < width-BLOCK_SIZE-1; j++) {
-      /* 差分絶対値和*/
-      for (int k = 0; k < BLOCK_SIZE; k++) {
-        for (int l = 0; l < BLOCK_SIZE; l++) {
-        sum+=abs(target[l][k]-imgin[num][0][j+l][i+k])
-        //sum+=abs(imgin[num][0][h][v]-imgin[num][0][j+l][i+k])
-        }
-      }
-      if (sum<min) {
-        /* 類似度更新 */
-        min=sum;
-        /*参照ブロックの基準点*/
-        min_p[0]=j
-        min_p[1]=i
-      }
-    }
-  }
+  /*共通の処理*/
+  red_frame(num,array[0],array[1]);
 }
 void red_frame(int num,int hori,int verti) {
   /*赤枠生成*/
