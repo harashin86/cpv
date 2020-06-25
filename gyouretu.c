@@ -5,11 +5,11 @@
 #define TRUE 1
 #define FALSE 0
 float a[N][N]={
-  {1.0,1.0,-1.0},
-  {1.0,3.0,1.0},
-  {3.0,-1.0,-2.0}
+  {1,3,-1},
+  {1,3,1},
+  {3,-1,-2}
 };
-float x[N],b[N] = {1.0,0.0,1.0};
+float x[N],b[N] = {1,0,1};
 int sw;
 int count=0;
 void sweep();
@@ -71,11 +71,11 @@ void sweep(void){
     }
     b[k]=b[k]/ak;
     count++;
-    for(i=0; i<N; i++){
+    for(i=0;i<N;i++){
       if(i!=k){
 	aik=a[i][k];
 	for(j=k; j<N; j++){
-	  a[i][j]=a[i][j] - aik *a[k][j];
+	  a[i][j]=a[i][j]-aik*a[k][j];
 	  count++;
 	}
 	b[i]=b[i]-b[k]*aik;
