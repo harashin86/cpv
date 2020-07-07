@@ -14,25 +14,22 @@ void ybr_to_rgb(void);
 void put_data(void);
 void cp(void);
 void gausian_filter(void);
-
 int main(void){
-  
   get_data();
   rgb_to_ybr();
   processing();
   ybr_to_rgb();
   put_data();
   return 0;
-
 }
 void processing(){
   FILE *fp;
-  int array[32][32]={{}};     
+  int array[32][32]={{}};
   int m,n=0;
   for(int i=0; i<height; i+=16 ){
     m=0;
     for(int j=0; j<width; j+=16 ){
-      double sum=0;      
+      double sum=0;
       for(int k=0;k<16;k++){//16*16ブロックの平均
 	for(int l=0;l<16;l++){
 	  sum+=imgin[0][j+l][i+k];
@@ -48,7 +45,7 @@ void processing(){
   if (fp==NULL){
     printf("ファイルをオープンできません.\n");
     exit (1);
-  }   
+  }
   printf("ファイルをオープンしました.\n");
   /* --- ファイルに書き出し ---*/
    for(int i=0;i<height/16;i++){
@@ -61,9 +58,8 @@ void processing(){
    /*--- ファイル・クローズ(書き出し用) ---*/
    fclose(fp);
   printf("ファイルをクローズしました.\n");
-  
-}
 
+}
 void get_data(){
   FILE *fp;
   char file[114];
@@ -92,7 +88,7 @@ void get_data(){
       imgin[0][j][i]=fgetc(fp);
     }
   }
-  printf("＜ファイルサイズ＞\n\n%d バイト\n",filesize); 
+  printf("＜ファイルサイズ＞\n\n%d バイト\n",filesize);
   printf("＜オフセット＞\n%d バイト\n",offset);
   printf("＜画像の幅＞\n%d 画素\n",width);
   printf("＜画像の高さ＞\n%d ライン\n",height);
@@ -104,7 +100,7 @@ void get_data(){
 void rgb_to_ybr(void){
   int i=0,j=0,k=0;
   double arry[3]={0,0,0};
-  double offset=0; 
+  double offset=0;
   for(i=0;i<height;i++){
     for(j=0;j<width;j++){
       arry[0]=0.2990*imgin[0][j][i]+0.5870*imgin[1][j][i]+0.1140*imgin[2][j][i];//色空間変換
@@ -117,12 +113,12 @@ void rgb_to_ybr(void){
 	}else{
 	  offset=-0.5;
 	}
-	arry[k]=(int)(arry[k]+offset);      
+	arry[k]=(int)(arry[k]+offset);
 	//１２８加算
 	if(k==1||k==2){
 	  arry[k]+=128;
-	}  
-	//範囲処理    
+	}
+	//範囲処理
 	if(arry[k]>255){
 	  arry[k]=255;
 	}else if(arry[k]<0){
@@ -130,7 +126,7 @@ void rgb_to_ybr(void){
 	}
 	imgin[k][j][i]=arry[k];
       }
-    } 
+    }
   }
 }
 void cp(void){
@@ -142,7 +138,6 @@ void cp(void){
     }
   }
 }
-
 void ybr_to_rgb(void){
   int i=0,j=0,k=0;
   double arry[3]={0,0,0};
@@ -152,7 +147,7 @@ void ybr_to_rgb(void){
       arry[0]= (1.0000*imgout[0][j][i]) + 1.4020*(imgout[2][j][i]-128);
       arry[1]= (1.0000*imgout[0][j][i]) + (-0.3441*(imgout[1][j][i]-128)) + (-0.7141*(imgout[2][j][i]-128));
       arry[2]= (1.0000*imgout[0][j][i])+(1.7720*(imgout[1][j][i]-128));
-      for(k=0;k<3;k++){      
+      for(k=0;k<3;k++){
 	if (arry[k]>=0.0){//四捨五入
 	  offset=0.5;
 	}else{
@@ -177,10 +172,10 @@ void put_data(void){
   FILE *fp;
   fp=fopen(newfile,"wb");
   printf("ファイルをオープンしました\n");
-  for(i=0;i<54;i++){  
+  for(i=0;i<54;i++){
     fputc(header[i],fp);
   }
-  for(i=height-1;i>-1;i--){ 
+  for(i=height-1;i>-1;i--){
     for(j=0;j<width;j++){
       fputc(imgout[2][j][i],fp);
       fputc(imgout[1][j][i],fp);
@@ -195,13 +190,13 @@ void gausian_filter(void){
 
   for(int i=-12;i<13;i++){//ガウシアンフィルタ生成
     for(int j=12;j>-13;j--){
-      double x=(pow(j,2)+pow(i,2))/(-2*pow(2.5,2));  
+      double x=(pow(j,2)+pow(i,2))/(-2*pow(2.5,2));
       filter_gausian[12-j][12+i]=(1/(2*3.14*2.5*2.5))*exp(x);
     }
   }
   for(int i=0;i<height;i++){//フィルタ処理
     for(int j=0;j<width;j++){
-      double sum=0;      
+      double sum=0;
       if(12<i<height-12||12<j<width-12){//範囲内処理
 	for(int k=0;k<25;k++){
 	  for(int l=0;l<25;l++){
@@ -210,7 +205,7 @@ void gausian_filter(void){
 	}
       }else{//範囲外
 	for(int k=0;k<25;k++){
-	  for(int l=0;l<25;l++){ 
+	  for(int l=0;l<25;l++){
 	    int a=0,b=0;
 	    if(k<12-i){//a判定
 	      a=12-i+k+1;
